@@ -21,7 +21,9 @@ function z = Process(varargin)
 % widht     -   The image widht
 % fontsize  -   The fontsize of labels, legenda entries etc.
 % autocut   -   Autocutting the image leaving 10% margin on all sides.
-
+% fontsize  -   Select the font size of the axis
+% fontsizelegend - Select the legend font size
+% fontsizetitle - Select the title font size
 % Example:
 % Process('title', 'Excellent plot', 'height', 100, 'width', 161)
 
@@ -34,7 +36,7 @@ defaultFontSize = 15;           % Used fontsize (labels)
 defaultFontSizeLegend=13;
 defaultFontSizeTitle=18;
 defaultAutoCut = false;
-defaultFileName = 'Awesome plot by Jaap';
+defaultFileName = 'Awesome plot by Nico';
 defaultTitle = '';
 defaultGrid = 'off';
 addOptional(p, 'width',  defaultWidth, @isnumeric);
@@ -57,18 +59,13 @@ end
 
 
 %% Initializing defaults
-GraphLineWidth = 3;         % The linewidth of the graph lines
+GraphLineWidth = 1;         % The linewidth of the graph lines
 MarkerSize = 10;            % The size of the markers
 margin = 0.1;               % Margin around the info
 FontName = 'Helvetica';     % Fonttype, chosen semi freely (only a couple are supported)
 FontWeight = 'Bold';        % [light normal, demi, bold]
 fontColor = 0.0*ones(1,3);  % 0 is black 1 is white
 axisColor = 0.0*ones(1,3);  % 0 is black 1 is white
-
-%% Setting title
-if ~isempty(p.Results.title)
-    title(p.Results.title)
-end
 
 %% Changing figure borders and grid
 set(gca,'Xgrid',p.Results.grid,'Ygrid',p.Results.grid)     % Turns the grid off (prefered by most editors)
@@ -100,6 +97,11 @@ set(gcf,...
     'PaperPosition', [0, 0, p.Results.width, p.Results.height]',...
     'PaperSize', [p.Results.width, p.Results.height],...
     'KeyPressFcn', 'close');
+
+%% Setting title
+if ~isempty(p.Results.title)
+    h = title(p.Results.title);
+end
 
 %% Lines and Marker makeup
 set(h_line,...
