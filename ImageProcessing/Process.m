@@ -18,12 +18,25 @@ function z = Process(varargin)
 % flags:
 % title     -   The filename under which the images are stored
 % height    -   The image height
-% widht     -   The image widht
+% width     -   The image width
 % fontsize  -   The fontsize of labels, legenda entries etc.
 % autocut   -   Autocutting the image leaving 10% margin on all sides.
 % fontsize  -   Select the font size of the axis
 % fontsizelegend - Select the legend font size
 % fontsizetitle - Select the title font size
+% grid - Turn a grid on or off
+% units - Select units for height and width measure
+% fontsizeaxes - Select font size of axis lables
+% samefoldersave - If enabled, the script saves the image not in a
+%                   subfolder, but in the active directory (true/false)
+% ghostscript - Rerun ghostscript (if available) after saving as a PDF.
+% graphlinewidth - Set Width of the plotted lines
+% markersize - Set the size of the markers in the plot
+% fontname - Select the font used in the plot
+% fontweigth - Select the weight of the font in the plot
+% extraspace - Add extra space (in set units) to each side of the plot
+% filetype - Select File Type (currently pdf or png)
+% resolution - Set resolutiom of PNG file
 % Example:
 % Process('title', 'Excellent plot', 'height', 100, 'width', 161)
 
@@ -41,7 +54,6 @@ defaultFileName = 'Awesome plot by Nico';
 defaultTitle = '';
 defaultGrid = 'off';
 defaultSameFolderSave = false;
-defaultRemoveRightSpace = false;
 defaultGhostscript = false;
 defaultGraphLineWidth = 1;
 defaultMarkerSize = 10;
@@ -62,7 +74,6 @@ addOptional(p, 'grid', defaultGrid,@isvalidgrid);
 addOptional(p, 'units',  defaultUnits,@isvalidunit);
 addOptional(p, 'fontsizeaxes',  defaultFontSizeAxes, @isnumeric);
 addOptional(p, 'samefoldersave', defaultSameFolderSave, @islogical);
-addOptional(p, 'removerightspace', defaultRemoveRightSpace, @islogical);
 addOptional(p, 'ghostscript', defaultGhostscript, @islogical);
 addOptional(p, 'graphlinewidth', defaultGraphLineWidth, @isnumeric);
 addOptional(p, 'markersize', defaultMarkerSize, @isnumeric);
