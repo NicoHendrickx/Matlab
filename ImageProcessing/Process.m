@@ -61,7 +61,7 @@ defaultFontName = 'Helvetica';
 defaultFontWeight = 'bold';
 defaultFileType = 'pdf';
 defaultResolution = 300;
-
+defaultAutoCutMargin = 0.1;
 addOptional(p, 'width',  defaultWidth, @isnumeric);
 addOptional(p, 'height', defaultHeight, @isnumeric);
 addOptional(p, 'fontsize', defaultFontSize, @isnumeric);
@@ -82,6 +82,7 @@ addOptional(p, 'fontweight', defaultFontWeight, @isvalidfontweight);
 addOptional(p, 'extraspace', [0 0 0 0]);
 addOptional(p, 'filetype', defaultFileType, @isvalidfiletype);
 addOptional(p, 'resolution', defaultResolution, @isnumeric);
+addOptional(p, 'autocutmargin', defaultAutoCutMargin, @isnumeric);
 parse(p, varargin{:})
 
 %% creating save structure and backup file
@@ -93,7 +94,6 @@ saveas(gcf, fullfile('figures', filesep,...
 
 
 %% Initializing defaults
-margin = 0.1;               % Margin around the info
 AxisLineWidth = 1;          % Thickness of the axis and grid.
 fontColor = 0.0*ones(1,3);  % 0 is black 1 is white
 axisColor = 0.0*ones(1,3);  % 0 is black 1 is white
@@ -124,9 +124,9 @@ if p.Results.autoCut && ~isempty(h_line)
     xmax = max([h_line.XData]);
     ymax = max([h_line.YData]);
     zmax = max([h_line.ZData]);
-    cutoffX = [xmin-margin*(xmax-xmin), xmax + margin*(xmax-xmin)];
-    cutoffY = [ymin-margin*(ymax-ymin), ymax + margin*(ymax-ymin)];
-    cutoffZ = [zmin-margin*(zmax-zmin), zmax + margin*(zmax-zmin)];
+    cutoffX = [xmin-p.Results.autocutmargin*(xmax-xmin), xmax + p.Results.autocutmargin*(xmax-xmin)];
+    cutoffY = [ymin-p.Results.autocutmargin*(ymax-ymin), ymax + p.Results.autocutmargin*(ymax-ymin)];
+    cutoffZ = [zmin-p.Results.autocutmargin*(zmax-zmin), zmax + p.Results.autocutmargin*(zmax-zmin)];
     
     axis([cutoffX, cutoffY cutoffZ]);
 end
@@ -188,28 +188,30 @@ elseif ~isempty(p.Results.title)
 end
 
 %% Saving
-switch p.Results.filetype
-    case 'pdf'
-        print(gcf, pdfsavepath, '-dpdf','-painters') %Saves the image as pdf in the figures folder
-        
-        %% Ghostscript rerun
-        if p.Results.ghostscript
-            if ~(exist('ghostscript')==2)
-                error('This function uses part of the export_fig function, please download this from: https://github.com/altmany/export_fig');
+ftcell = cellstr(p.Results.filetype);
+for j = 1:length(ftcell)
+    switch ftcell{j}
+        case 'pdf'
+            print(gcf, pdfsavepath, '-dpdf','-painters') %Saves the image as pdf in the figures folder
+            
+            %% Ghostscript rerun
+            if p.Results.ghostscript
+                if ~(exist('ghostscript')==2)
+                    error('This function uses part of the export_fig function, please download this from: https://github.com/altmany/export_fig');
+                end
+                str = [' -dSAFER -dNOPLATFONTS -dNOPAUSE -dBATCH -sDEVICE=pdfwrite ', ...
+                    '-dPDFSETTINGS=/printer -dCompatibilityLevel=1.4 ', ...
+                    '-dMaxSubsetPct=100 -dSubsetFonts=true -sFONTPATH=/Applications/MATLAB_R2016a.app/sys/fonts/ttf/ -dEmbedAllFonts=true -sOutputFile=', p.Results.filename, '_temp.pdf -f ', p.Results.filename, '.pdf'];
+                ghostscript(str);
+                delete([p.Results.filename,'.pdf']);
+                movefile([p.Results.filename,'_temp.pdf'],[p.Results.filename,'.pdf']);
             end
-            str = [' -dSAFER -dNOPLATFONTS -dNOPAUSE -dBATCH -sDEVICE=pdfwrite ', ...
-                '-dPDFSETTINGS=/printer -dCompatibilityLevel=1.4 ', ...
-                '-dMaxSubsetPct=100 -dSubsetFonts=true -sFONTPATH=/Applications/MATLAB_R2016a.app/sys/fonts/ttf/ -dEmbedAllFonts=true -sOutputFile=', p.Results.filename, '_temp.pdf -f ', p.Results.filename, '.pdf'];
-            ghostscript(str);
-            delete([p.Results.filename,'.pdf']);
-            movefile([p.Results.filename,'_temp.pdf'],[p.Results.filename,'.pdf']);
-        end
-    case 'png'
-        resflag = ['-r' num2str(p.Results.resolution)];
-        print(gcf, pdfsavepath, '-dpng' ,resflag) %Saves the image as pdf in the figures folder
+        case 'png'
+            resflag = ['-r' num2str(p.Results.resolution)];
+            print(gcf, pdfsavepath, '-dpng' ,resflag) %Saves the image as pdf in the figures folder
+    end
 end
 end
-
 function out = isvalidgrid(in)
 out = any(strcmp(in,{'in','off'}));
 end
